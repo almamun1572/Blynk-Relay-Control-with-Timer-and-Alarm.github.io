@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blynk Relay Control with Timer</title>
+  <style>
+/* বডি স্টাইল */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* টাইটেল স্টাইল */
+    h1 {
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+      margin-top: 20px;
+     text-align: center;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    /* রিলে কন্টেইনার স্টাইল */
+    .relay-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    /* রিলে কার্ড */
+    .relay {
+      background: linear-gradient(145deg, #2d4a70, #3a608c);
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3), -5px -5px 15px rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      width: 250px;
+    }
+
+    .relay h3 {
+      margin-bottom: 10px;
+    }
+
+    /* বাটন স্টাইল */
+    .relay-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease-in-out;
+      color: #fff;
+    }
+
+    .relay-btn.on {
+      background: linear-gradient(145deg, #28a745, #34c759);
+      box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.3), inset -3px -3px 8px rgba(255, 255, 255, 0.1);
+    }
+
+    .relay-btn.off {
+      background: linear-gradient(145deg, #dc3545, #e83e4d);
+      box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.3), inset -3px -3px 8px rgba(255, 255, 255, 0.1);
+    }
+
+    .relay-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* ইনপুট এবং সিলেক্ট স্টাইল */
+    input[type="number"], input[type="time"], select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #ffffff, #e0e0e0);
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(145deg, #007bff, #0056b3);
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease-in-out;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* কাউন্টডাউন স্টাইল */
+    .countdown {
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #ffeb3b;
+    }
+
+    /* ফুটার */
+    footer {
+      margin-top: auto;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.2);
+      color: #fff;
+      width: 100%;
+    }
+  </style>
+  </style>
+</head>
+<body>
+  <h1>Blynk Relay Control with Timer and Alarm</h1>
+  <p>Control your devices and set timers and alarms easily with an attractive UI</p>
+
+   <div class="relay-container">
+  <!-- Relay 1 -->
+  <div class="relay">
+    <h3>Relay 1</h3>
+    <button id="relay1" class="relay-btn off" onclick="toggleRelay(1)">OFF</button>
+
+    <div class="device">
+      <div class="timer-container">
+        <input type="number" id="timer1" placeholder="Minutes" min="1">
+        <select id="action1">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setTimer(1)">Set</button>
+      </div>
+    </div>
+    <div id="timerCountdown1" class="countdown"></div>
+
+    <div class="device">
+      <div class="alarm-container">
+        <input type="time" id="alarmTime1">
+        <select id="alarmAction1">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setAlarm(1)">Set Alarm</button>
+      </div>
+    </div>
+    <div id="alarmCountdown1" class="countdown"></div>
+  </div>
+
+  <!-- Relay 2 -->
+  <div class="relay">
+    <h3>Relay 2</h3>
+    <button id="relay2" class="relay-btn off" onclick="toggleRelay(2)">OFF</button>
+
+    <div class="device">
+      <div class="timer-container">
+        <input type="number" id="timer2" placeholder="Minutes" min="1">
+        <select id="action2">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setTimer(2)">Set</button>
+      </div>
+    </div>
+    <div id="timerCountdown2" class="countdown"></div>
+
+    <div class="device">
+      <div class="alarm-container">
+        <input type="time" id="alarmTime2">
+        <select id="alarmAction2">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setAlarm(2)">Set Alarm</button>
+      </div>
+    </div>
+    <div id="alarmCountdown2" class="countdown"></div>
+  </div>
+
+  <!-- Relay 3 -->
+  <div class="relay">
+    <h3>Relay 3</h3>
+    <button id="relay3" class="relay-btn off" onclick="toggleRelay(3)">OFF</button>
+
+    <div class="device">
+      <div class="timer-container">
+        <input type="number" id="timer3" placeholder="Minutes" min="1">
+        <select id="action3">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setTimer(3)">Set</button>
+      </div>
+    </div>
+    <div id="timerCountdown3" class="countdown"></div>
+
+    <div class="device">
+      <div class="alarm-container">
+        <input type="time" id="alarmTime3">
+        <select id="alarmAction3">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setAlarm(3)">Set Alarm</button>
+      </div>
+    </div>
+    <div id="alarmCountdown3" class="countdown"></div>
+  </div>
+
+  <!-- Relay 4 -->
+  <div class="relay">
+    <h3>Relay 4</h3>
+    <button id="relay4" class="relay-btn off" onclick="toggleRelay(4)">OFF</button>
+
+    <div class="device">
+      <div class="timer-container">
+        <input type="number" id="timer4" placeholder="Minutes" min="1">
+        <select id="action4">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setTimer(4)">Set</button>
+      </div>
+    </div>
+    <div id="timerCountdown4" class="countdown"></div>
+
+    <div class="device">
+      <div class="alarm-container">
+        <input type="time" id="alarmTime4">
+        <select id="alarmAction4">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+          <option value="reset">Reset</option>
+        </select>
+        <button onclick="setAlarm(4)">Set Alarm</button>
+      </div>
+    </div>
+    <div id="alarmCountdown4" class="countdown"></div>
+  </div>
+</div>
+
+  </div>
+
+  <footer>&copy; 2024 Blynk Relay Controller</footer>
+
+  <script>
+    const authToken = "lhELh2hu1ouKuDoziYjxdzlrgSHrkGlg"; // Replace with your Blynk auth token
+    const apiUrl = "https://blynk.cloud/external/api";
+    const relayStates = [false, false, false, false];
+    const alarmTimers = [null, null, null, null];
+
+  function toggleRelay(index) {
+      const pin = `V${index}`;
+      relayStates[index - 1] = !relayStates[index - 1];
+      const value = relayStates[index - 1] ? 1 : 0;
+
+      fetch(`${apiUrl}/update?token=${authToken}&${pin}=${value}`)
+        .then(response => {
+          if (response.ok) {
+            updateButtonState(index);
+          } else {
+            alert("Failed to update relay state!");
+          }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function updateButtonState(index) {
+      const button = document.getElementById(`relay${index}`);
+      if (relayStates[index - 1]) {
+        button.classList.remove("off");
+        button.classList.add("on");
+        button.innerText = "ON";
+      } else {
+        button.classList.remove("on");
+        button.classList.add("off");
+        button.innerText = "OFF";
+      }
+    }
+
+
+
+  function setTimer(index) {
+  const minutes = parseInt(document.getElementById(`timer${index}`).value); // মিনিট ইনপুট নেওয়া
+  const action = document.getElementById(`action${index}`).value;
+  const countdownElement = document.getElementById(`timerCountdown${index}`);
+
+  if (action === "reset") {
+    document.getElementById(`timer${index}`).value = "";
+    countdownElement.innerText = "";
+    return;
+  }
+
+  if (isNaN(minutes) || minutes <= 0) {
+    alert("Please enter a valid time in minutes.");
+    return;
+  }
+
+  const seconds = minutes * 60; // মিনিটকে সেকেন্ডে রূপান্তর করা
+  let remainingTime = seconds;
+  countdownElement.innerText = `Time remaining: ${remainingTime}s`;
+
+  const countdownInterval = setInterval(() => {
+    remainingTime--;
+    if (remainingTime > 0) {
+      countdownElement.innerText = `Time remaining: ${Math.floor(remainingTime / 60)}m ${remainingTime % 60}s`;
+    } else {
+      clearInterval(countdownInterval);
+      countdownElement.innerText = "Time's up!";
+
+      if (action === "on") {
+        relayStates[index - 1] = true;
+      } else if (action === "off") {
+        relayStates[index - 1] = false;
+      }
+      const value = relayStates[index - 1] ? 1 : 0;
+      const pin = `V${index}`;
+
+      fetch(`${apiUrl}/update?token=${authToken}&${pin}=${value}`)
+        .then(response => {
+          if (response.ok) {
+            updateButtonState(index);
+          } else {
+            alert("Failed to update relay state via timer!");
+          }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+  }, 1000);
+}
+
+
+
+
+    function fetchRelayStates() {
+      for (let i = 1; i <= 4; i++) {
+        const pin = `V${i}`;
+        fetch(`${apiUrl}/get?token=${authToken}&${pin}`)
+          .then(response => response.text())
+          .then(value => {
+            relayStates[i - 1] = value === '1';
+            updateButtonState(i);
+          })
+          .catch(error => console.error(`Error fetching state for Relay ${i}:`, error));
+      }
+    }
+    setInterval(fetchRelayStates, 300); // Check relay states every 5 seconds
+
+    function setAlarm(index) {
+      const alarmTimeInput = document.getElementById(`alarmTime${index}`).value;
+      const action = document.getElementById(`alarmAction${index}`).value;
+       const countdownElement = document.getElementById(`alarmCountdown${index}`);
+
+      if (action === "reset") {
+        document.getElementById(`alarmTime${index}`).value = "";
+        countdownElement.innerText = "Alarm Reset";
+        clearInterval(alarmTimers[index - 1]);
+        alarmTimers[index - 1] = null;
+        return;
+      }
+
+      if (!alarmTimeInput) {
+        alert("Please set a valid alarm time.");
+        return;
+      }
+
+      const alarmTime = new Date();
+      const [hours, minutes] = alarmTimeInput.split(":").map(Number);
+      alarmTime.setHours(hours, minutes, 0, 0);
+
+      const now = new Date();
+      if (alarmTime <= now) {
+        alert("Please set a future time for the alarm.");
+        return;
+      }
+
+      countdownElement.innerText = `Alarm set for ${alarmTimeInput}`;
+      clearInterval(alarmTimers[index - 1]);
+
+      alarmTimers[index - 1] = setInterval(() => {
+        const remainingTime = alarmTime - new Date();
+        if (remainingTime <= 0) {
+          clearInterval(alarmTimers[index - 1]);
+          countdownElement.innerText = "Time's up!";
+          triggerRelayAction(index, action);
+        } else {
+          const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+          const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+          countdownElement.innerText = `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
+        }
+      }, 1000);
+    }
+
+    function triggerRelayAction(index, action) {
+      relayStates[index - 1] = action === "on";
+      const value = relayStates[index - 1] ? 1 : 0;
+      const pin = `V${index}`;
+
+      fetch(`${apiUrl}/update?token=${authToken}&${pin}=${value}`)
+        .then(response => {
+          if (response.ok) {
+            updateButtonState(index);
+          } else {
+            alert("Failed to update relay state via alarm!");
+          }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    setInterval(() => {
+      // ফিচার আপডেটের জন্য
+    }, 1000);
+  </script>
+</body>
+</html>
